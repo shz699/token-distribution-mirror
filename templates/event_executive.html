@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{event.name}}{% endblock title %}
+
+{% block bc %}
+<li class="breadcrumb-item active"><a href="{% url 'events' %}">Events</a></li>
+<li class="breadcrumb-item">Event Details</li>
+{% endblock bc %}
+
+{% block body %}
+<div class="main">
+    <div class="container">
+        <h1 class="title_header">Event Details</h1>
+        <div class="main_body px-4">
+            <div class="row text-lg-center">
+                <p class="text-success fw-bold lead">{{token_status}}</p>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <p class="fw-bold lead">Event Name: <span class="lead fw-normal">{{event.name}}</span></p>
+                </div>
+                <div class="col-lg-6">
+                    <p class="fw-bold lead">Event Date: 
+                        <span class="lead fw-normal">
+                            {% if event.event_date is not null %}
+                            {{event.event_date|date:"D d M Y"}}
+                            {% else %}
+                            TBD
+                            {% endif %} 
+                        </span>
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                <p class="fw-bold lead">Event Details: 
+                    <span class="lead fw-normal">
+                        {% if event.desc is not null %}
+                        {{event.desc}}
+                        {% else %}
+                        TBD
+                        {% endif %} 
+                    </span>
+                </p>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <p class="fw-bold lead">Token Distribution Start: 
+                        <span class="lead fw-normal">
+                            {% if event.token_dist_start is not null %}
+                            {{event.token_dist_start}}
+                            {% else %}
+                            TBD
+                            {% endif %} 
+                        </span>
+                    </p>
+                </div>
+                <div class="col-lg-6">
+                    <p class="fw-bold lead">Token Distribution End: 
+                        <span class="lead fw-normal">
+                        {% if event.token_dist_end is not null %}
+                        {{event.token_dist_end}}
+                        {% else %}
+                        TBD
+                        {% endif %} 
+                        </span>
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                <p class="fw-bold lead">Distribution Place: 
+                    <span class="fw-normal lead">
+                        {% if event.distribution_place is not null %}
+                        {{event.distribution_place}}
+                        {% else %}
+                        TBD
+                        {% endif %} 
+                    </span>
+                </p>
+            </div>
+        </div>
+        <h3 class="mt-4 text-center">Event Management - Executive level</h3>
+        <div class="main_body mt-4 px-4">
+            {% if token_status == "Event Finished. Thanks for your co-operation" %}
+                <div class="row text-center">
+                    <h3 class="fw-normal text-secondary">Event finished. Thanks for your co-operation</h3>
+                </div>
+            {% else %}
+                <div class="row text-center">
+                    <h2 class="text-success fw-bold">Hi {{user.name}}</h2>
+                    <p class="lead">You are assigned to manage the token distribution of this event</p>
+                </div>
+                <div class="row text-center gap-4 justify-content-center">
+                    <div class="col-md-3">
+                        <a href="{% url 'tokens:scanner_dist' event.id %}" class="btn btn-primary btn-lg fw-bold">Token Distribution</a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'tokens:scanner_receive' event.id %}" class="btn btn-warning btn-lg fw-bold">Token Receive</a>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    {% if epall %}
+                        <p class="fw-bold text-center">Information of other executives assigned for token handling</p>
+                        {% for event in epall %}
+                        <div class="row my-2 justify-content-center text-lg-center gap-lg-0 gap-2 border-top border-bottom border-dark glutter">
+                            <div class="col-lg-4">
+                                <p class="fw-bold mb-0">{{event.user.name}}</p>
+                            </div>
+                            <div class="col-lg-4">
+                                <a class="fw-bold text-dark" href="tel:{{event.user.phone}}">{{event.user.phone}}</a>
+                            </div>
+                            <div class="col-lg-4">
+                                <p class="fw-bold mb-0">{{event.user.username}}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-danger text-center fw-bold">Only you are assigned for this event.</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+    </div>
+</div>
+{% endblock body %}

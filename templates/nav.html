@@ -1,0 +1,33 @@
+<header class="border-bottom">
+    <nav class="navbar navbar-expand-lg navbar-light container">
+      <div class="container-fluid d-flex justify-content-between">
+        <div>
+          <a class="navbar-brand" href="/">
+            <img src="https://th.bing.com/th/id/R.9022450cb9bd5c25aa83792341c1d93e?rik=pyPsMUjo7%2fTeLg&riu=http%3a%2f%2fcse.iubat.edu%2fwp-content%2fuploads%2f2019%2f06%2fiubat_cse-logo.png&ehk=EDxgn3M75GwbAI3b1Fwn7FLCfXN4NLEy3HGYtpFFQO8%3d&risl=&pid=ImgRaw&r=0" alt="IUBAT CSE LOGO" width="55" height="50">
+          </a>
+        </div>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{% url 'events' %}">Events</a>
+            </li>
+            {% if request.user.is_authenticated %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard' %}">{{request.user}}</a>
+              </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}" title="Log-out"><i class='bx bx-log-out fs-4'></i></a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'login' %}">Login</a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>

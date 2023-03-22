@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{event.name}}{% endblock title %}
+
+{% block bc %}
+<li class="breadcrumb-item active"><a href="{% url 'events' %}">Events</a></li>
+<li class="breadcrumb-item">Event Details</li>
+{% endblock bc %}
+
+{% block body %}
+<div class="main">
+    <div class="container">
+        <h1 class="title_header">Event Details</h1>
+        <div class="main_body px-4">
+            <div class="row text-lg-center">
+                <p class="text-success fw-bold lead">{{token_status}}</p>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <p class="fw-bold lead">Event Name: <span class="lead fw-normal">{{event.name}}</span></p>
+                </div>
+                <div class="col-lg-6">
+                    <p class="fw-bold lead">Event Date: 
+                        <span class="lead fw-normal">
+                            {% if event.event_date is not null %}
+                            {{event.event_date|date:"D d M Y"}}
+                            {% else %}
+                            TBD
+                            {% endif %} 
+                        </span>
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                <p class="fw-bold lead">Event Details: 
+                    <span class="lead fw-normal">
+                        {% if event.desc is not null %}
+                        {{event.desc}}
+                        {% else %}
+                        TBD
+                        {% endif %} 
+                    </span>
+                </p>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <p class="fw-bold lead">Token Distribution Start: 
+                        <span class="lead fw-normal">
+                            {% if event.token_dist_start is not null %}
+                            {{event.token_dist_start}}
+                            {% else %}
+                            TBD
+                            {% endif %} 
+                        </span>
+                    </p>
+                </div>
+                <div class="col-lg-6">
+                    <p class="fw-bold lead">Token Distribution End: 
+                        <span class="lead fw-normal">
+                        {% if event.token_dist_end is not null %}
+                        {{event.token_dist_end}}
+                        {% else %}
+                        TBD
+                        {% endif %} 
+                        </span>
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                <p class="fw-bold lead">Distribution Place: 
+                    <span class="fw-normal lead">
+                        {% if event.distribution_place is not null %}
+                        {{event.distribution_place}}
+                        {% else %}
+                        TBD
+                        {% endif %} 
+                    </span>
+                </p>
+            </div>
+        </div>
+        <h3 class="mt-4 text-center">Event Management - Admin level</h3>
+        <div class="main_body mt-4 px-4">
+            <form method="post" id="event_update_form" action="/event_update/" enctype='multipart/form-data'>
+                {% csrf_token %}
+                <div class="row">
+                    <div class="lead fw-normal">
+                        <label for="name" class="form-label fw-bold">Event Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{event.name}}">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="lead">
+                        <label for="place" class="form-label fw-bold">Token Distribution Place</label>
+                        <input type="text" class="form-control" id="place" name="place" value="{{event.distribution_place}}">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-6 lead">
+                        <label for="date" class="form-label fw-bold">Event Date</label>
+                        <input type="date" class="form-control" id="date" name="date" value="{{event.event_date|date:'Y-m-d'}}">
+                    </div>
+                    <div class="col-md-6 lead">
+                        <label for="time" class="form-label fw-bold">Event Starting Time</label>
+                        <input type="time" class="form-control" id="time" name="time" value="{{event.event_date|date:'H:m'}}">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-6 lead">
+                        <label for="token_start_date" class="form-label fw-bold">Token Distribution Start Date</label>
+                        <input type="date" class="form-control" id="token_start_date" name="token_start_date" value="{{event.token_dist_start|date:'Y-m-d'}}">
+                    </div>
+                    <div class="col-md-6 lead">
+                        <label for="token_start_time" class="form-label fw-bold">Token Distribution Start Time</label>
+                        <input type="time" class="form-control" id="token_start_time" name="token_start_time" value="{{event.token_dist_start|date:'H:m'}}">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-6 lead">
+                        <label for="token_end_date" class="form-label fw-bold">Token Distribution End Date</label>
+                        <input type="date" class="form-control" id="token_end_date" name="token_end_date" value="{{event.token_dist_end|date:'Y-m-d'}}">
+                    </div>
+                    <div class="col-md-6 lead">
+                        <label for="token_end_time" class="form-label fw-bold">Token Distribution End Time</label>
+                        <input type="time" class="form-control" id="token_end_time" name="token_end_time" value="{{event.token_dist_end|date:'H:m'}}">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="lead">
+                        <label for="desc" class="form-label fw-bold">Event Descriptopn</label>
+                        <textarea name="desc" id="desc" rows="5" class="form-control">{{event.desc}}</textarea>
+                    </div>               
+                </div>
+                <div class="row mt-2">
+                    <div class="lead col-md-6">
+                        <label for="usage" class="form-label fw-bold">Token Usage Limit</label>
+                        <input type="number" class="form-control" value="{{event.token_usage}}" id="usage" name="usage">
+                        <span class="fw-bold text-secondary" style="font-size: 14px;">*Maximum number of times one token can be redeemed.</span>
+                        <br>
+                        <span class="fw-bold text-danger" style="font-size: 14px;">*If you change the usage than all previous tokens will be updated. This can take a while.</span>
+                        <br>
+                        <span class="fw-bold text-secondary" style="font-size: 14px;">*Currently maximum token usage based on the architecture -> 2</span>
+                    </div>               
+                    <div class="lead col-md-6">
+                        <label for="tags" class="form-label fw-bold">Token usage purposes</label>
+                          <br>
+                          <span class="fw-bold text-primary">*If token usage is 1 than the token will only act as food token.</span>
+                          <br>
+                          <span class="fw-bold text-primary">*If token usage is 2 than the token will act as entry and food token.</span>
+                          <br>
+                    </div>               
+                </div>
+                <div class="row mt-2">
+                    <div class="lead col-md-6">
+                        <label for="users" class="form-label fw-bold">Assign Executives</label>
+                        <select class="form-select" aria-label="Assign Executives" id="users" name="users" multiple>
+                            <optgroup label="Selected">
+                                {% if epall.count > 0 %}
+                                    {% for user in epall%}                               
+                                        <option selected value="{{user.user.id}}">{{user.user.name}} - {{user.user.username}}</option>
+                                    {% endfor %}                          
+                                    {% else %}
+                                    <option value="None" >No Executive Selected</option>
+                                {% endif %}
+                                </optgroup>
+                                <optgroup label="All Executives">
+                                {% for user in users %}
+                                         <option value="{{user.id}}">{{user.name}} - {{user.username}}</option>
+                                {% endfor %}
+                                </optgroup>
+                          </select>
+                    </div>               
+                    <div class="lead col-md-6 mt-2">
+                        <div class="token_hanlde">
+                            <h5 class="fw-bold">Manage Tokens <span class="text-primary">(Overview)</span></h5>
+                            <p class="mb-0 fw-normal">Total tokens generated - <span class="fw-bold">{{event.get_tokens.count}}</span> </p>
+                            <p class="mb-0 fw-normal">Total tokens printed - <span class="fw-bold">{{event.get_printed_tokens.count}}</span></p>
+                            <p class="mb-0 fw-normal">Total tokens activated - <span class="fw-bold">{{event.get_activated_tokens.count}}</span></p>
+                            <a href="{% url 'tokens:token_event' event.id%}" class="btn btn-sm btn-secondary w-100 mt-2">Token Management</a>
+                        </div>
+                    </div>               
+                </div>
+                <input type="hidden" value="{{event.id}}" name="pk">
+                <div class="row px-2 gap-2 justify-content-center mt-4">
+                    <button type="submit" class="btn btn-primary col-lg-4" id="update_btn">Update</button>
+                    <button class="btn btn-danger col-lg-4" id="del_btn">Delete</button>
+                </div>
+            </form>
+        </div>
+        <h3 class="mt-4 text-center">Manage student list for {{event.name}}</h3>
+        <div class="main_body mt-4 px-4">
+            <div class="row justify-content-center text-center">
+                {% if stu_list > 0 %}
+                    <span class="fw-bold text-success">Student list uploaded with {{stu_list}} records.</span>
+                    {% else %}
+                    <span class="fw-bold text-secondary">Student list not uploaded.</span>
+                {% endif %}
+                <a href="{% url 'studentlist' event.id %}" class="btn btn-primary col-md-6 mt-2">Go to student list management</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}
+
+{% block scripts %}
+<script>
+    let eventUpdateBtn = document.getElementById("update_btn"),
+    delBtn = document.querySelector("#del_btn");
+
+    const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+    const spinner = () => {
+        return `
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            `;
+    }
+
+    eventUpdateBtn.addEventListener("click",(e)=>{
+        e.preventDefault();
+        
+        eventUpdateBtn.setAttribute("disabled", true);
+        delBtn.setAttribute("disabled", true);
+        eventUpdateBtn.innerHTML = spinner();
+
+        setTimeout(() => {
+            document.querySelector("#event_update_form").submit();
+        }, 2000);
+    });
+    delBtn.addEventListener("click", (e) =>{
+        e.preventDefault();
+        eventUpdateBtn.setAttribute("disabled", true);
+        delBtn.setAttribute("disabled", true);
+        delBtn.innerHTML = spinner();
+        
+        fetch("/delete_event/", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrf,
+                },
+                body: JSON.stringify({'event_id': "{{event.id}}" })
+            })
+            .then(async (response) => {
+                let res = await response.json();
+                window.location = "/dashboard/";
+            })
+            .catch(err => {
+                console.log("Error");
+                console.log(err)
+            });
+    });
+</script>
+{% endblock scripts %}

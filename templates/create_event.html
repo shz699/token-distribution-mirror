@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}New User{% endblock title %}
+
+{% block bc %}
+<li class="breadcrumb-item active"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item">Add new user</li>
+{% endblock bc %}
+
+
+{% block body %}
+<div class="main">
+    <div class="container">
+        <h1 class="title_header">Create New User</h1>
+        <div id="notification">
+            {% if success %}
+            <div class="alert alert-success" role="alert">
+                <p class="mb-0">${success}</p>
+            </div>
+            {% endif %}
+        </div>
+        <div class="main_body mt-4 px-4">
+            <form method="post" id="event_add_form" action="/create_event/" enctype='multipart/form-data'>
+                {% csrf_token %}
+                <div class="row">
+                    <div class="lead fw-normal">
+                        <label for="name" class="form-label fw-bold">Event Name</label>
+                        <input required type="text" class="form-control" id="name" name="name">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="lead">
+                        <label for="place" class="form-label fw-bold">Token Distribution Place</label>
+                        <input type="text" class="form-control" id="place" name="place" value="CSE Department">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-6 lead">
+                        <label for="date" class="form-label fw-bold">Event Date</label>
+                        <input required type="date" class="form-control" id="date" name="date">
+                    </div>
+                    <div class="col-md-6 lead">
+                        <label for="time" class="form-label fw-bold">Event Starting Time</label>
+                        <input required type="time" class="form-control" id="time" name="time">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-6 lead">
+                        <label for="token_start_date" class="form-label fw-bold">Token Distribution Start Date</label>
+                        <input required type="date" class="form-control" id="token_start_date" name="token_start_date">
+                    </div>
+                    <div class="col-md-6 lead">
+                        <label for="token_start_time" class="form-label fw-bold">Token Distribution Start Time</label>
+                        <input required type="time" class="form-control" id="token_start_time" name="token_start_time">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-6 lead">
+                        <label for="token_end_date" class="form-label fw-bold">Token Distribution End Date</label>
+                        <input required type="date" class="form-control" id="token_end_date" name="token_end_date">
+                    </div>
+                    <div class="col-md-6 lead">
+                        <label for="token_end_time" class="form-label fw-bold">Token Distribution End Time</label>
+                        <input required type="time" class="form-control" id="token_end_time" name="token_end_time"
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="lead">
+                        <label for="desc" class="form-label fw-bold">Event Descriptopn</label>
+                        <textarea name="desc" id="desc" rows="5" class="form-control"></textarea>
+                    </div>               
+                </div>
+                <div class="row mt-2">
+                    <div class="lead col-md-6">
+                        <label for="usage" class="form-label fw-bold">Token Usage Limit</label>
+                        <input required type="number" class="form-control" value="1" id="usage" name="usage">
+                        <span class="fw-bold text-secondary" style="font-size: 14px;">*Maximum number of times one token can be redeemed.</span>
+                        <br>
+                        <span class="fw-bold text-danger" style="font-size: 14px;">*If you change the usage than all previous tokens will be updated. This can take a while.</span>
+                        <br>
+                        <span class="fw-bold text-secondary" style="font-size: 14px;">*Currently maximum token usage based on the architecture -> 2</span>
+                    </div>               
+                    <div class="lead col-md-6">
+                        <label for="tags" class="form-label fw-bold">Token usage purposes</label>
+                          <br>
+                          <span class="fw-bold text-primary">*If token usage is 1 than the token will only act as food token.</span>
+                          <br>
+                          <span class="fw-bold text-primary">*If token usage is 2 than the token will act as entry and food token.</span>
+                          <br>
+                    </div>               
+                </div>
+                <div class="row px-2 gap-2 justify-content-center mt-4">
+                    <button type="submit" class="btn btn-success col-lg-4" id="create_btn">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock body %}
+
+{% block scripts %}
+<script>
+    let eventAddBtn = document.getElementById("create_btn"),
+
+    const spinner = () => {
+        return `
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            `;
+    }
+
+    eventAddBtn.addEventListener("click",(e)=>{
+        e.preventDefault();
+        
+        eventAddBtn.setAttribute("disabled", true);
+        delBtn.setAttribute("disabled", true);
+        eventAddBtn.innerHTML = spinner();
+
+        setTimeout(() => {
+            document.querySelector("#event_add_form").submit();
+        }, 2000);
+    });
+</script>
+{% endblock scripts %}

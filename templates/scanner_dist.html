@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Token Distribution{% endblock title %}
+
+{% block bc %}
+<li class="breadcrumb-item active"><a href="{% url 'events' %}">Events</a></li>
+<li class="breadcrumb-item active"><a href="{% url 'event_details' event.id%}">Event Details</a></li>
+<li class="breadcrumb-item">Token Distribution</li>
+{% endblock bc %}
+
+{% block body %}
+<div class="main">
+    <div class="container">
+        <h1 class="title_header">Token Distribution for {{event.name}}</h1>
+        <div id="notification">
+
+        </div>
+        <div class="main_body">
+            <div class="scanner">
+                <div id="interactive" class="viewport"></div>
+                <div class="btns">
+                    <button id="scan_btn" data-status="false" class="btn btn-primary">Scan now</button>
+                    <button id="stop_btn" class="btn btn-danger">Stop scan</button>
+                </div>
+                <div class="lead text-center">Status: <span id="v" class="fw-bold">Click Scan Now</span></div>
+                <div class="svg_output">
+                    <svg id="barcode"></svg>
+                </div>
+                <div class="validity_check text-center">
+                    <div class="row justify-content-center">
+                        <div class="mt-3 col-md-6">
+                            {% csrf_token %}
+                            <label for="student_id" class="form-label">Enter student Id</label>
+                            <input type="text" class="form-control" id="student_id" name="student_id">
+                          </div>
+                    </div>
+                    <button class="btn btn-primary mt-3" id="activate_btn"> Click Here to activate token id <span id="barcode_res"></span> for <span id="stu_res"></span> </button>
+                </div>
+                <div class="text-center">
+                    <button class="btn btn-secondary mt-3" id="missing_form_btn"> Click Here to add missing student record</button>
+                </div>
+                <div class="new_student_reg text-center">
+                    <h3>Add missing student record</h3>
+                    <div class="row justify-content-center">
+                        <div class="mt-3 col-md-6">
+                            {% csrf_token %}
+                            <label for="student_id_new" class="form-label fw-bold">Enter Student Id</label>
+                            <input type="text" class="form-control" id="student_id_new" name="student_id_new">
+                        </div>
+                        <div class="mt-3 col-md-6">
+                            <label for="student_name" class="form-label fw-bold">Enter Student Name</label>
+                            <input type="text" class="form-control" id="student_name" name="student_name">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary mt-3" id="missing_submit_btn"> Click Here to activate token id <span id="barcode_res_new"></span> for <span id="stu_res_new"></span> </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}
+
+{% block scripts %}
+<script src="{% static 'js/quagga.js' %}"></script>
+<script src="{% static 'js/js_barcode.js' %}"></script>
+<script src="{% static 'js/scanner_dist.js' %}"></script>
+<script src="{% static 'js/app.js' %}"></script>
+<script>
+    const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+    let code;
+    activateBtn.addEventListener("click", (e) => {
+        code = validityCheck.getAttribute("code");
+        
+        activateBtn.setAttribute("disabled", true);
+        studentId.classList.remove("is-invalid");
+
+        if(studentId.value === "")
+        {
+            studentId.classList.add("is-invalid");
+            activateBtn.removeAttribute("disabled");
+        }
+        else{
+            fetch("/tokens/token_activate/", {
+                method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrf,
+            },
+            body: JSON.stringify({'code': code, 'stu_id': studentId.value,'event_id':"{{event.id}}"})
+            })
+            .then(async (response) => {
+                let res = await response.json();
+                activateBtn.removeAttribute("disabled");
+                if(res.msg === '200')
+                {
+                    validityCheck.classList.remove("show");
+                    notification.innerHTML = alert_trigger("success",`Token id ${code} activated successfully.`)
+                }
+                else if(res.msg === '403')
+                {
+                    notification.innerHTML = alert_trigger("danger",`Token id ${code} is already activated.`)
+                }
+                else if(res.msg === '404')
+                {
+                    notification.innerHTML = alert_trigger("danger",`Token id ${code} not found.`)
+                }
+                else if(res.msg === '303')
+                {
+                    notification.innerHTML = alert_trigger("danger",`Student id ${studentId.value} has already claimed event token.`)
+                }
+                else if(res.msg === '304')
+                {
+                    notification.innerHTML = alert_trigger("danger",`Student id ${studentId.value} not found in the event student list.`)
+                    missingFormBtn.classList.add("show");
+                }
+                studentIdNew.value = studentId.value;
+                stuResNew.innerHTML = studentIdNew.value;
+                studentId.value = "";
+            })
+            .catch(err => {
+                console.log(err)
+            });
+        }
+    })
+
+    studentId.addEventListener("input",(e)=>{
+        studentRes.innerHTML = studentId.value;
+    });
+
+    studentIdNew.addEventListener("input",(e)=>{
+        stuResNew.innerHTML = studentIdNew.value;
+    });
+
+    missingFormBtn.addEventListener("click", e =>{
+        e.preventDefault();
+        validityCheck.classList.remove("show");
+        missingFormBtn.classList.remove("show");
+        newStudentReg.classList.add("show");
+        document.getElementById("barcode_res_new").innerHTML = code;
+    })
+
+    missingSubmitBtn.addEventListener("click", e =>{
+        e.preventDefault();
+
+        missingSubmitBtn.setAttribute("disabled", true);
+        studentIdNew.classList.remove("is-invalid");
+        studentName.classList.remove("is-invalid");
+        let flag = true;
+        if(studentIdNew.value === "")
+        {
+            studentIdNew.classList.add("is-invalid");
+            missingSubmitBtn.removeAttribute("disabled");
+            flag = false;
+        }
+        if(studentName.value === "")
+        {
+            studentName.classList.add("is-invalid");
+            missingSubmitBtn.removeAttribute("disabled");
+            flag = false;
+        }
+        if(flag)
+        {
+            fetch("/tokens/token_activate_new/", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrf,
+                },
+                body: JSON.stringify({'code': code, 'stu_id': studentIdNew.value,'name': studentName.value,'event_id':"{{event.id}}"})
+            })
+            .then(async (response) => {
+                let res = await response.json();
+                missingSubmitBtn.removeAttribute("disabled");
+                if(res.msg === '200')
+                {
+                    newStudentReg.classList.remove("show");
+                    notification.innerHTML = alert_trigger("success",`Token id ${code} activated for missing student.`)
+                    studentIdNew.value = "";
+                    studentName.value = "";
+                }
+                else if(res.msg === '403')
+                {
+                    notification.innerHTML = alert_trigger("danger",`Token id ${code} is already activated.`)
+                }
+                else if(res.msg === '404')
+                {
+                    notification.innerHTML = alert_trigger("danger",`Token id ${code} not found.`)
+                }
+            })
+            .catch(err => {
+                console.log(err)
+            });
+        }
+    })
+</script>
+{% endblock scripts %}

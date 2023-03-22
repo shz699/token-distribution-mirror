@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}{{event.name}}{% endblock title %}
+
+{% block bc %}
+<li class="breadcrumb-item active"><a href="{% url 'events' %}">Events</a></li>
+<li class="breadcrumb-item active"><a href="{% url 'event_details' event.id%}">Event Details</a></li>
+<li class="breadcrumb-item">Student List Management for Event</li>
+{% endblock bc %}
+
+
+{% block body %}
+<div class="main">
+    <div class="container">
+        <h1 class="title_header">Manage student list for {{event.name}}</h1>
+        <div id="notification">
+            {% if status %}
+                <div class="alert alert-{{type}}" role="alert">
+                    <p class="mb-0">{{msg}}</p>
+                </div>
+            {% endif %}
+        </div>
+        <div class="main_body">
+            <div class="row">
+                <div class="row text-center">
+                {% if stu_list > 0 %}
+                    <span class="fw-bold text-success">Student list uploaded with {{stu_list}} records.</span>
+                    {% else %}
+                    <span class="fw-bold text-secondary">Student list not uploaded.</span>
+                {% endif %}
+                </div>
+                <form method="post" enctype="multipart/form-data" class="px-4">
+                    {% csrf_token %}
+                    <div class="row px-4">
+                        <label for="student_list" class="form-label"></label>
+                        <input class="form-control" type="file" id="student_list" name="student_list">
+                        <span class="fw-bold mt-2 text-secondary">*Only file with .xlsx extensions can be uploaded.</span>
+                        <br>
+                        <span class="fw-bold mt-2 text-secondary">*Excel sheet should only have (SL,Student Id,Name) columns.</span>
+                        <br>
+                        <span class="fw-bold mt-2 text-danger">*Do not enter record of one student twice.</span>
+                        <br>
+                        <span class="fw-bold mt-2 text-danger">*Uploading student list twice will erase previous student list.</span>
+                    </div>
+                    <div class="row justify-content-center mt-3">
+                        <button type="submit" class="btn btn-primary col-md-4" id="file_upload_btn">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}

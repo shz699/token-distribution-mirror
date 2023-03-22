@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Printing</title>
+    <link rel="shortcut icon"
+        href="https://th.bing.com/th/id/R.9022450cb9bd5c25aa83792341c1d93e?rik=pyPsMUjo7%2fTeLg&riu=http%3a%2f%2fcse.iubat.edu%2fwp-content%2fuploads%2f2019%2f06%2fiubat_cse-logo.png&ehk=EDxgn3M75GwbAI3b1Fwn7FLCfXN4NLEy3HGYtpFFQO8%3d&risl=&pid=ImgRaw&r=0"
+        type="image/x-icon">
+
+
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+    <h1 id="title" class="text-start">{{event.name}}</h1>
+    <div class="meta_info">
+        {% if num > 0 %}
+            <div id="print_conf">
+                <button type="button" class="btn btn-outline-success" onclick="qc()">Print</button>
+            </div>
+            <p class="lead fw-bold">Printing Date: <span class="fw-normal">{{dt|date:'M d, Y '}}</span></p>
+            <p class="lead fw-bold">Printed By: <span class="fw-normal">{{request.user.username}}</span></p>
+            <p class="lead fw-bold">Total pages: <span class="fw-normal">{{total_pgs}}</span></p>
+            <p class="lead fw-bold">Batch print: <span class="fw-normal">{{num}} tokens</span></p>
+            <p class="lead fw-bold">Tokens: <span class="fw-normal">{{start_token}} - {{end_token}}</span></p>
+            <p class="lead fw-bold">Tokens per page: <span class="fw-normal">10</span></p>
+            <h4 class="fw-bold border-bottom mt-2">Token Index</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Page Number</th>
+                        <th scope="col">Starting token id</th>
+                        <th scope="col">Ending token id</th>
+                        <th scope="col">Tokens</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for token in token_index %}
+                    <tr class="table_row">
+                        <th scope="row">{{token.page}}</th>
+                        <td>{{token.starting_token}}</td>
+                        <td>{{token.finish_token}}</td>
+                        <td>{{token.count}}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <th scope="row"></th>
+                        <td></td>
+                        <td colspan="2">Total Tokens &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; -> &nbsp; &nbsp; &nbsp; &nbsp;
+                            &nbsp; &nbsp; {{num}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            {% else %}
+            <h2>No tokens are availabe for printing currently.<a href="{% url 'tokens:token_event' event.id %}"> Geneate new tokens</a> </h2>
+        {% endif %}
+    </div>
+    <div class="tokens_container">
+        <div class="row justify-content-between gap-2">
+            {% for token in tokens %}
+            <div class="token border border-gray">
+                <div class="token_headaer">
+                    <p class="fw-bold text-center">{{event}}</p>
+                </div>
+                <div class="token_body d-flex justify-content-between border-bottom">
+                    <ul class="token_usage_print">
+                        {% if event.token_usage == 1 %}
+                        <li>Food</li>
+                        {% endif %}
+                        {% if event.token_usage == 2 %}
+                        <li>Entry</li>
+                        <li>Food</li>
+                        {% endif %}
+                    </ul>
+                    <img src="https://chart.googleapis.com/chart?cht=qr&chl=https://token-dist-py.up.railway.app/event/{{event.id}}&chs=100x100&chld=L|0"
+                        class="qr-code img-responsive" />
+                </div>
+                <div class="token_footer d-flex justify-content-center">
+                    <svg class="barcode barcode_{{forloop.counter0}}" data-token-id="{{token.token_serial}}"></svg>
+                </div>
+            </div>
+            {% endfor %}
+            {% csrf_token %}
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+    <script src="{% static 'js/js_barcode.js' %}"></script>
+    <script src="{% static 'js/paged.js' %}"></script>
+    <script>
+        const barcodes = document.querySelectorAll(".barcode");
+        let notification = document.querySelector("#notification"),
+            printBtn = document.querySelector("#print_btn");
+        csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+        for (i = 0; i < barcodes.length; i++) {
+            let cls = ".barcode_" + i;
+            let id = barcodes[i].getAttribute("data-token-id");
+            JsBarcode(cls, id);
+            barcodes[i].style.height = "100px";
+            barcodes[i].querySelector("rect").style.fill = "#ffffff00"
+        }
+
+        function qc() {
+            window.print();
+            alert("Updating token status. Please wait....");
+            fetch("/tokens/update_print_status/", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrf,
+                },
+                body: JSON.stringify({ 's_token_id': "{{first_token_id}}", 'total_tokens': "{{num}}" })
+            })
+            .then(async (response) => {
+                let res = await response.json();
+                alert("Printing Status Updated.");
+                window.location.reload();
+            })
+            .catch(err => {
+                alert("Error. Try again.")
+                console.log(err)
+            });
+        }
+    </script>
+</body>
+
+</html>

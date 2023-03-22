@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Events{% endblock title %}
+
+{% block bc %}
+<li class="breadcrumb-item active" aria-current="page">Events</li>
+{% endblock bc %}
+
+{% block body %}
+<div class="main">
+<div class="container">
+    <h1 class="title_header fw-bold">Welcome <i class='bx bx-donate-heart'></i></h1>
+    <div class="main_body">
+    <!-- Upcoming Events -->
+    <div class="events row gap-4 justify-content-center">
+        {% if up_events %}
+            <h1 class="fw-bold">Upcoming Events</h1>
+            {% for event in up_events %}
+            <div class="event col-lg-5">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{event.name}}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">{{event.desc}}</h6>
+                        <p class="lead">
+                            <span class="fw-bold">Event Date: </span>
+                            {% if event.event_date is not null %}
+                            {{event.event_date|date:"D d M Y"}}
+                            {% else %}
+                            TBD
+                            {% endif %}
+                        </p>
+                        <p class="lead">
+                            <span class="fw-bold">Token Distribution Start: </span>
+                            {% if event.token_dist_start is not null %}
+                            {{event.token_dist_start}}
+                            {% else %}
+                            TBD
+                            {% endif %}
+                        </p>
+                        <p class="lead">
+                            <span class="fw-bold">Token Distribution End: </span>
+                            {% if event.token_dist_end is not null %}
+                            {{event.token_dist_end}}
+                            {% else %}
+                            TBD
+                            {% endif %}
+                        </p>
+                        <p class="lead">
+                            <span class="fw-bold">Token Distribution Place: </span>
+                            {% if event.distribution_place is not null %}
+                            {{event.distribution_place}}
+                            {% else %}
+                            TBD
+                            {% endif %} 
+                        </p>
+                        <a href="{% url 'event_details' event.id %}" class="card-link">Go to Event</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <h1 class="lead">No Upcoming Events</h1>
+        {% endif %}
+    </div>
+    <!-- Upcoming Events -->
+    <!-- Previous Events -->
+    <div class="events row gap-4 justify-content-center mt-4 prev_events">
+        {% if prev_events %}
+            <h1 class="fw-bold">Previous Events</h1>
+            {% for event in prev_events %}
+            <div class="event col-lg-5">
+                <div class="card">
+                    <div class="card-body">
+                    <h5 class="card-title">{{event.name}}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{event.desc}}</h6>
+                    <p class="lead">
+                        <span class="fw-bold">Event Date: </span>
+                        {% if event.event_date is not null %}
+                            {{event.event_date|date:"D d M Y"}}
+                        {% else %}
+                            TBD
+                        {% endif %}
+                    </p>
+                    {% if request.user.is_authenticated %}
+                        <a href="{% url 'event_details' event.id %}" class="card-link">Go to Event</a>
+                    {% else %}
+                        <a class="card-link disabled">Check Event</a>
+                    {% endif %}
+                    </div>
+                </div>
+                </div>
+            {% endfor %}
+        {% else %}
+                <h1 class="lead">No Previous Events</h1>
+        {% endif %}
+    <!-- Previous Events -->
+    </div>
+</div>
+</div>
+{% endblock body %}
+

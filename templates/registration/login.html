@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+<div class="main">
+    <div class="container">
+        <h1 class="title_header">Login</h1>
+        <div id="notification">
+
+        </div>
+        <div class="main_body px-4">
+            <form method="post" class="px-md-4 login_form">
+                {% csrf_token %}
+                <div class="row gap-2">
+                    {{form}}
+                </div>
+                <div class="row justify-content-center mt-2">
+                    <button class="btn btn-primary col-4" type="submit">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock body %}
+
+
+{% block scripts %}
+<script>
+    let inps = document.querySelectorAll("input"),
+    labels = document.querySelectorAll("label");
+    
+    inps.forEach(item =>{
+        item.classList.add("form-control");
+    });
+
+    labels.forEach(item =>{
+        item.classList.add("form-label");
+        item.classList.add("fw-bold");
+        item.style.paddingLeft = "0";
+    });
+</script>
+{% endblock scripts %}

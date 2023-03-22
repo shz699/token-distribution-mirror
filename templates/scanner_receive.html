@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Token Receive{% endblock title %}
+
+{% block bc %}
+<li class="breadcrumb-item active"><a href="{% url 'events' %}">Events</a></li>
+<li class="breadcrumb-item active"><a href="{% url 'event_details' event.id%}">Event Details</a></li>
+<li class="breadcrumb-item">Token Receive</li>
+{% endblock bc %}
+
+
+{% block body %}
+<div class="main">
+    <div class="container">
+        <h1 class="title_header">Token Receive for {{event.name}}</h1>
+        <div id="notification">
+
+        </div>
+        <div class="main_body">
+            <div class="scanner">
+                <div class="row justify-content-center">
+                    <select class="form-select token_receive_select" aria-label="Usage Purposes" id="tags" name="tags">
+                        <option value="0" disabled>Select proper receive purpose</option>
+                        {% if event.token_usage == 1 %}
+                        <option value="2">Food</option>
+                        {% endif %}
+                        {% if event.token_usage == 2 %}
+                        <option value="1">Entry</option>
+                        <option value="2">Food</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div id="interactive" class="viewport"></div>
+                <div class="btns">
+                    <button id="scan_btn" data-status="false" class="btn btn-primary">Scan now</button>
+                    <button id="stop_btn" class="btn btn-danger">Stop scan</button>
+                </div>
+                <div class="lead text-center">Status: <span id="v" class="fw-bold">Click Scan Now</span></div>
+                <div class="svg_output">
+                    <svg id="barcode"></svg>
+                </div>
+                <div class="validity_check text-center">
+                    {% csrf_token %}
+                    <button class="btn btn-primary mt-3" id="activate_btn"> Click Here to check validity of token id
+                        <span id="barcode_res"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}
+
+{% block scripts %}
+<script src="{% static 'js/quagga.js' %}"></script>
+<script src="{% static 'js/js_barcode.js' %}"></script>
+<script src="{% static 'js/app.js' %}"></script>
+<script>
+    let activateBtn = document.querySelector("#activate_btn"),
+        tags = document.querySelector("#tags");
+
+    const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+    activateBtn.addEventListener("click", (e) => {
+        let code = validityCheck.getAttribute("code");
+
+        activateBtn.setAttribute("disabled", true);
+
+        fetch("/tokens/token_receive/", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrf,
+            },
+            body: JSON.stringify({ 'code': code,'tag':tags.value,"event_id":"{{event.id}}"})
+            })
+            .then(async (response) => {
+                let res = await response.json();
+                activateBtn.removeAttribute("disabled");
+                if(res.msg === "201")
+                {
+                    notification.innerHTML = alert_trigger("success", `Token id ${code} redeemed for entry successfully.`)
+                    validityCheck.classList.remove("show");
+                }
+                if(res.msg === "202")
+                {
+                    notification.innerHTML = alert_trigger("success", `Token id ${code} redeemed for food successfully.`)
+                    validityCheck.classList.remove("show");
+                }
+                else if(res.msg === "401")
+                {
+                    notification.innerHTML = alert_trigger("danger", `Token id ${code} already reedemed for entry.`)
+                }
+                else if(res.msg === "402")
+                {
+                    notification.innerHTML = alert_trigger("danger", `Token id ${code} already reedemed for food.`)
+                }
+                else if(res.msg === "403")
+                {
+                    notification.innerHTML = alert_trigger("danger", `Token id ${code} is not activated.`)
+                }
+                else if(res.msg === "404")
+                {
+                    notification.innerHTML = alert_trigger("danger", `Token id ${code} not found.`)
+                }
+            })
+            .catch(err => {
+                console.log(err)
+            });
+        })
+</script>
+{% endblock scripts %}

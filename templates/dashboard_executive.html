@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{user.username}}{% endblock title %}
+
+{% block bc %}
+<li class="breadcrumb-item">Dashboard</li>
+{% endblock bc %}
+
+{% block body %}
+<div class="main">
+    <div class="container">
+        <h1 class="title_header">Hello {{user.name}}</h1>
+        <div class="row text-center mb-4 justify-content-center">
+            <a href="{% url 'account_settings' %}" class="btn btn-outline-secondary col-4 rounded-pill" style="display: flex; column-gap: 0.5rem; align-items: center; justify-content: center;"><i class='bx bx-cog text-dark-100 fs-4'></i> Account Settings</a>
+        </div>
+        <div class="main_body px-4">
+            <div class="row mb-4">
+                <h3 class="text-center mb-4">All events</h3>
+                <div class="text-center">
+                    <a href="{% url 'events' %}" class="btn btn-primary">Go to all events page</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6 mb-4 mb-lg-0 prev_events">
+                    <div style="display: grid; row-gap: 0.5rem;">
+                        <h3 class="text-center mb-4">Events where you were assigned.</h3>
+                        {% if prev_events %}
+                        {% for event in prev_events %}
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{event.name}}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">{{event.desc}}</h6>
+                                <p class="lead">
+                                    <span class="fw-bold">Event Date: </span>
+                                    {% if event.event_date is not null %}
+                                    {{event.event_date|date:"D d M Y"}}
+                                    {% else %}
+                                    TBD
+                                    {% endif %}
+                                </p>
+                                <a class="card-link btn px-0">Check
+                                    Event</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <p class="lead fw-normal text-center">No previous events record found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-lg-6 mt-4 mt-lg-0">
+                    <div style="display: grid; row-gap: 0.5rem;">
+                        <h3 class="text-center mb-4">Events where you are assigned.</h3>
+                        {% if up_events %}
+                        {% for event in up_events %}
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{event.name}}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">{{event.desc}}</h6>
+                                <p class="lead">
+                                    <span class="fw-bold">Event Date: </span>
+                                    {% if event.event_date is not null %}
+                                    {{event.event_date|date:"D d M Y"}}
+                                    {% else %}
+                                    TBD
+                                    {% endif %}
+                                </p>
+                                <a href="{% url 'event_details' event.id %}" class="card-link btn text-primary px-0">Check
+                                    Event</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <p class="lead fw-normal text-center">No active events record found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}

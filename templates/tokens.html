@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{event.name}}{% endblock title %}
+
+{% block bc %}
+<li class="breadcrumb-item active"><a href="{% url 'events' %}">Events</a></li>
+<li class="breadcrumb-item active"><a href="{% url 'event_details' event.id%}">Event Details</a></li>
+<li class="breadcrumb-item">Token Management for Event</li>
+{% endblock bc %}
+
+{% block body %}
+<div class="main">
+    <div class="container">
+        <h1 class="title_header">Token Management for {{event.name}}</h1>
+        <div id="notification">
+
+        </div>
+        <div class="main_body">
+            <div class="row px-4 text-md-center">
+                <h3 class="mb-0 fw-bold">Total tokens generated for the event</h3>
+                <p class="fw-bold fs-3">-> {{event.get_tokens.count}}</p>
+            </div>
+            <div class="accordion" id="add_token">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="token_add_heading">
+                        <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Generate Tokens
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="token_add_heading"
+                        data-bs-parent="#add_token">
+                        <div class="accordion-body">
+                            <form class="text-center" id="generate_form">
+                                {% csrf_token %}
+                                <div class="lead d-flex gap-2">
+                                    <input type="number" class="form-control" id="generate_num" name="generate_num"
+                                        required>
+                                    <span class="fw-normal">/300</span>
+                                </div>
+                                <span class="fw-bold text-danger">*Maximam 300 tokens can be generated at a time to
+                                    ensure performance</span>
+                                <div class="row mt-2 justify-content-center">
+                                    <button class="btn btn-primary col-6" type="submit"
+                                        id="generate_btn">Generate</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                {% if event.get_tokens_non_printed_count == 0 %}
+                    <div class="row px-4 mt-4 text-md-center">
+                        <h3 class="mb-0 fw-bold text-secondary">Generate new tokens to proceed printing</h3>
+                    </div>
+                {% else %}
+                    <div class="row px-4 mt-4 text-md-center">
+                        <h3 class="mb-0 fw-bold">Total tokens printed for the event</h3>
+                        <p class="fw-bold fs-3">-> {{event.get_printed_tokens.count}}</p>
+                    </div>
+                    <div class="accordion" id="print_token">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="token_print_heading">
+                                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapse2" aria-expanded="true" aria-controls="collapse2">
+                                    Print Tokens
+                                </button>
+                            </h2>
+                            <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="token_print_heading"
+                                data-bs-parent="#print_token">
+                                <div class="accordion-body">
+                                    <form class="text-center" id="print_form">
+                                        {% csrf_token %}
+                                        <p>Available tokens for printing -> <span
+                                                class="fw-bold">{{event.get_tokens_non_printed_count}}</span></p>
+                                        <div class="lead d-flex gap-2">
+                                            <input type="number" class="form-control" id="print_num" name="print_num"
+                                                required>
+                                            <span class="fw-normal">/500</span>
+                                        </div>
+                                        <span class="fw-bold text-danger">*Maximam 500 tokens can be printed at a time to
+                                            ensure
+                                            performance</span>
+                                        <div class="row mt-2 justify-content-center">
+                                            <button class="btn btn-primary col-6" type="submit"
+                                                id="print_btn">Print</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endblock body %}
+
+    {% block scripts %}
+    <script>
+        let generateNum = document.querySelector("#generate_num"),
+            printNum = document.querySelector("#print_num"),
+            generateBtn = document.querySelector("#generate_btn"),
+            printBtn = document.querySelector("#print_btn"),
+            notification = document.querySelector("#notification");
+
+        const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+        const spinner = () => {
+            return `
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                `;
+        }
+
+        const alert_trigger = (type, msg) => {
+            return `
+                <div class="alert alert-${type}" role="alert">
+                    <p class="mb-0">${msg}</p>
+                </div>`;
+        }
+
+        generateBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            generateNum.classList.remove("is-invalid");
+            generateBtn.setAttribute("disabled", true);
+            generateBtn.innerHTML = spinner();
+
+            let num = generateNum.value
+            if (num > 300 || num < 1) {
+                generateNum.classList.add("is-invalid");
+                generateNum.value = null;
+                generateBtn.removeAttribute("disabled");
+                generateBtn.innerHTML = "Generate";
+            }
+            else {
+                fetch("/tokens/generate_tokens/", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrf,
+                    },
+                    body: JSON.stringify({ 'num': num, 'event_id': "{{event.id}}" })
+                })
+                    .then(async (response) => {
+                        let res = await response.json();
+                        window.scrollTo(0, 0);
+                        notification.innerHTML = alert_trigger("success", `${num} token(s) generated successfully! Please refresh the page to see update.`)
+                        generateBtn.removeAttribute("disabled");
+                        generateBtn.innerHTML = "Generate";
+                        console.log(res.msg);
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    });
+            }
+        });
+
+        printBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            printNum.classList.remove("is-invalid");
+
+            let num = printNum.value
+
+            if (num > 500) {
+                printNum.classList.add("is-invalid");
+                printNum.value = null;
+            }
+            else {
+                {% comment %} window.location = `http://127.0.0.1:8000/tokens/print_token/${num}/{{event.id}}`; {% endcomment %}
+                window.location = `https://token-dist-cse.up.railway.app/tokens/print_token/${num}/{{event.id}}`;
+            }
+        });
+    </script>
+    {% endblock scripts %}

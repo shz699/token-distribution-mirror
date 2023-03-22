@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{user.username}} - Settings{% endblock title %}
+
+{% block bc %}
+<li class="breadcrumb-item active"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item">Account settings</li>
+{% endblock bc %}
+
+{% block body %}
+<div class="main">
+    <div class="container">
+        <h1 class="title_header">Update Account</h1>
+        <div id="notification">
+            {% if success %}
+                <div class="alert alert-success" role="alert">
+                    <p class="mb-0">{{success}}</p>
+                </div>
+            {% endif %}
+        </div>
+        <div class="main_body px-4">
+            <form id="user_form" method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <p class="fw-bold text-secondary">Account Status - 
+                        <span class="text-primary">
+                            {% if user.is_admin %}
+                                Admin
+                            {% else %}
+                                Executive
+                            {% endif %}
+                        </span>
+                    </p>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 lead">
+                        <label for="name" class="form-label fw-bold">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{user.name}}">
+                    </div>
+                    <div class="col-md-6 lead mt-2 mt-md-0">
+                        <label for="username" class="form-label fw-bold">Student Id/ Username</label>
+                        <input type="text" class="form-control readonly" value="{{user.username}}" disabled>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-6 lead">
+                        <label for="phone" class="form-label fw-bold">Phone</label>
+                        {% if user.phone %}
+                            <input type="phone" class="form-control" id="phone" name="phone" value="{{user.phone}}">
+                            {% else %}
+                            <input type="phone" class="form-control" id="phone" name="phone" value="" placeholder = "Ex: 0176****981">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 lead mt-2 mt-md-0">
+                        <label for="email" class="form-label fw-bold">Email</label>
+                        {% if user.email %}
+                            <input type="email" class="form-control" id="email" name="email"    value="{{user.email}}">
+                            {% else %}
+                            <input type="email" class="form-control" id="email" name="email"   value="" placeholder = "Ex: boss@boss.com">
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row justify-content-center mt-2">
+                    <div class="row justify-content-center mt-2">
+                        <button type="submit" class="btn btn-primary col-md-4 col-6" id="update_btn">Update</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <h1 class="title_header">Update Account Password</h1>
+        <div id="notification">
+            {% if success_pass %}
+                <div class="alert alert-success" role="alert">
+                    <p class="mb-0">{{success_pass}}</p>
+                </div>
+            {% endif %}
+        </div>
+        <div id="notification">
+            {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <p class="mb-0">{{error}}</p>
+                </div>
+            {% endif %}
+        </div>
+        <div class="main_body px-4">
+            <form id="user_password_form" method="post" action="update_password">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md lead">
+                        <label for="prevpass" class="form-label fw-bold">Previous Password</label>
+                        <input required type="text" class="form-control" id="prevpass" name="prevpass" placeholder="Previous Password">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md lead">
+                        <label for="newpass" class="form-label fw-bold">New Password</label>
+                        <input required type="phone" class="form-control" id="newpass" name="newpass" placeholder="New Password">
+                    </div>
+                </div>
+                <div class="row justify-content-center mt-2">
+                    <div class="row justify-content-center mt-2">
+                        <button type="submit" class="btn btn-warning col-md-4 col-6" id="update_btn">Update Password</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock body %}

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Token Automation - CSE{% endblock title %}
+
+{% block body %}
+<section class="bg-dark py-5 hero">
+    <div class="container px-5">
+        <div class="row gx-5 justify-content-center">
+            <div class="col-lg-8">
+                <div class="text-center my-5">
+                    <h1 class="display-5 fw-bolder text-white mb-2">Token management made easy</h1>
+                    <p class="lead text-white-50 mb-4">Quickly create and manage tokens for various events or occasions and let the system handle the rest.</p>
+                    <div>
+                        <a class="navbar-brand" href="#">
+                          <img src="https://th.bing.com/th/id/R.9022450cb9bd5c25aa83792341c1d93e?rik=pyPsMUjo7%2fTeLg&riu=http%3a%2f%2fcse.iubat.edu%2fwp-content%2fuploads%2f2019%2f06%2fiubat_cse-logo.png&ehk=EDxgn3M75GwbAI3b1Fwn7FLCfXN4NLEy3HGYtpFFQO8%3d&risl=&pid=ImgRaw&r=0" alt="IUBAT CSE LOGO" width="110" height="100">
+                        </a>
+                      </div>
+                    <p class="lead fw-bold text-white-50">A concern for Department of Computer Science And Engineering. IUBAT</p>
+                    <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+                        <a class="btn btn-primary btn-lg px-4 me-sm-3" href="{% url 'events' %}">Events</a>
+                        {% if request.user.is_authenticated %}
+                            <a class="btn btn-outline-light btn-lg px-4" href="{% url 'logout' %}">Logout</a>
+                            {% else %}
+                            <a class="btn btn-outline-light btn-lg px-4" href="{% url 'login' %}">Login</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="py-5" id="features">
+    <div class="container px-5 my-5">
+        <div class="row gx-5">
+            <div class="col-lg-4 mb-5 mb-lg-0">
+                <div class="feature  text-white">
+                    <i class='bx bx-bot fs-1 bg-primary bg-gradient p-2 rounded-3 mb-3'></i>
+                </div>
+                <h2 class="h4 fw-bolder">Automated Token Management</h2>
+                <p>Manage tokens of various events digitally.</p>
+            </div>
+            <div class="col-lg-4 mb-5 mb-lg-0">
+                <div class="feature text-white">
+                    <i class='bx bx-barcode fs-1 bg-primary bg-gradient p-2 rounded-3 mb-3'></i></div>
+                <h2 class="h4 fw-bolder">Barcode to track records</h2>
+                <p>Unique barcode for each and every tokens preventing fraudulent and easy management.</p>
+            </div>
+            <div class="col-lg-4">
+                <div class="feature text-white">
+                    <i class='bx bx-timer fs-1 bg-primary bg-gradient p-2 rounded-3 mb-3'></i>></div>
+                <h2 class="h4 fw-bolder">Saves time and labor</h2>
+                <p>Dedicated student list and volunteers for every events. Saves time and energy.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock body %}

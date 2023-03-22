@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}New User{% endblock title %}
+
+{% block bc %}
+<li class="breadcrumb-item active"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item">Add new user</li>
+{% endblock bc %}
+
+
+{% block body %}
+<div class="main">
+    <div class="container">
+        <h1 class="title_header">Create New User</h1>
+        <div id="notification">
+
+        </div>
+        <div class="main_body px-4">
+            <form id="user_form">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6 lead">
+                        <label for="name" class="form-label fw-bold">Name</label>
+                        <input type="text" class="form-control" id="name" name="name">
+                    </div>
+                    <div class="col-md-6 lead mt-2 mt-md-0">
+                        <label for="username" class="form-label fw-bold">Student Id/ Username(Admin)</label>
+                        <input type="text" class="form-control" id="username" name="username">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 lead">
+                        <label for="phone" class="form-label fw-bold">Phone</label>
+                        <input type="phone" class="form-control" id="phone" name="phone">
+                    </div>
+                    <div class="col-md-6 lead mt-2 mt-md-0">
+                        <label for="email" class="form-label fw-bold">Email</label>
+                        <input type="email" class="form-control" id="email" name="email">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 lead">
+                        <label for="password" class="form-label fw-bold">Password</label>
+                        <input type="password" class="form-control" id="password" name="password">
+                    </div>
+                    <div class="col-md-6 lead mt-2 mt-md-0">
+                        <label for="con_password" class="form-label fw-bold">Confirm Password</label>
+                        <input required type="password" class="form-control" id="con_password" name="con_password">
+                    </div>
+                </div>
+                <div class="row">
+                    <span class="fw-bold text-danger" style="font-size: 14px;">*Password must be atleast 6 characters.</span>
+                </div>
+                <div class="row justify-content-center mt-2">
+                    <div>
+                        <div>
+                            <input class="form-check-input" type="checkbox" id="adm">
+                            <label for="adm">Click the checkbox to mark the new user as admin user</label>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center mt-2">
+                        <button type="submit" class="btn btn-primary col-md-4 col-6" id="create_btn">Create</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock body %}
+
+{% block scripts %}
+<script>
+    let createBtn = document.querySelector("#create_btn"),
+        name = document.querySelector("#name"),
+        username = document.querySelector("#username"),
+        phone = document.querySelector("#phone"),
+        email = document.querySelector("#email"),
+        password = document.querySelector("#password"),
+        conPassword = document.querySelector("#con_password"),
+        adm = document.querySelector("#adm"),
+        notification = document.querySelector("#notification");
+
+    const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+    const alert_trigger = (type, msg) => {
+        return `
+            <div class="alert alert-${type}" role="alert">
+                <p class="mb-0">${msg}</p>
+            </div>`;
+    }
+
+    const spinner = () => {
+        return `
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        `;
+    }
+
+    const disableSpinner = () => {
+        createBtn.removeAttribute("disabled");
+        createBtn.innerHTML = "Create";
+    }
+
+
+    createBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        name.classList.remove("is-invalid");
+        username.classList.remove("is-invalid");
+        phone.classList.remove("is-invalid");
+        password.classList.remove("is-invalid");
+        conPassword.classList.remove("is-invalid");
+
+        createBtn.setAttribute("disabled", true);
+        createBtn.innerHTML = spinner();
+
+        flag = true;
+        if (name.value === "") {
+            name.classList.add("is-invalid");
+            flag = false;
+        }
+        if (username.value === "") {
+            username.classList.add("is-invalid");
+            flag = false;
+        }
+        if (phone.value === "") {
+            phone.classList.add("is-invalid");
+            flag = false;
+        }
+        if (password.value === "") {
+            password.classList.add("is-invalid");
+            flag = false;
+        }
+        if (conPassword.value === "") {
+            conPassword.classList.add("is-invalid");
+            flag = false;
+        }
+        if (password.value != conPassword.value) {
+            password.classList.add("is-invalid");
+            conPassword.classList.add("is-invalid");
+            flag = false;
+        }
+        if (password.value.length < 6) {
+            password.classList.add("is-invalid");
+            flag = false;
+        }
+        if (flag) {
+            fetch("/create_user_post/", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrf,
+                },
+                body: JSON.stringify({
+                    'name': name.value,
+                    'username': username.value,
+                    'phone': phone.value,
+                    'email': email.value,
+                    'password': password.value,
+                    'adm': adm.checked
+                })
+            })
+                .then(async (response) => {
+                    let res = await response.json();
+                    notification.innerHTML = alert_trigger("success", `<span class="fw-bold"> ${username.value}</span>. User created successfully.`)
+                    disableSpinner();
+                    console.log(res);
+                })
+                .catch(error => {
+                    notification.innerHTML = alert_trigger("danger", `User creation failed. Cross check student id and phone.`)
+                    disableSpinner();
+                });
+        }
+        else {
+            disableSpinner();
+        }
+    });
+</script>
+{% endblock scripts %}

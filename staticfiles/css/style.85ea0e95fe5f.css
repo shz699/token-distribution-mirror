@@ -1,0 +1,261 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap');
+
+:root {
+--bg-color: #F5F5F5;
+--body-bg: #fff;
+--primary-color: ;
+}
+
+/* Utility Classes  */
+body{
+  background: var(--body-bg);
+  font-family: 'Nunito', sans-serif;
+}
+
+h1 {
+text-align: center;
+}
+
+.form-control{
+  padding: 0.5rem;
+}
+
+.card {
+height: -moz-fit-content;
+height: fit-content;
+box-shadow: 3px 3px 20px 5px rgba(0, 0, 0, 0.192);
+border-radius: 0.5rem;
+}
+
+.errorlist{
+  color: red;
+  padding-left: 0;
+}
+.errorlist li{
+  list-style: none;
+  font-weight: bolder;
+}
+
+select{
+  height: 150px;
+}
+
+.navbar-collapse {
+  flex-grow: 0; 
+}
+
+.token_receive_select{
+  height: fit-content;
+  width: auto;
+}
+.drawingBuffer {
+display: none;
+}
+
+.title_header {
+margin-bottom: 1rem;
+}
+
+.glutter {
+--bs-gutter-x:0;
+}
+
+.main {
+margin-top: 50px;
+}
+
+.main_body {
+background: var(--bg-color);
+padding: 2rem 0;
+border-radius: 0.5rem;
+box-shadow: 3px 3px 20px 5px rgba(0, 0, 0, 0.192);
+margin-bottom: 1rem;
+}
+
+.prev_events .card p {
+color: gray;
+pointer-events: none;
+}
+
+.prev_events .card a {
+cursor: not-allowed;
+color: gray;
+text-decoration: none;
+}
+
+#reader {
+width: 800px;
+}
+
+.result {
+background-color: green;
+color: #fff;
+padding: 20px;
+}
+
+.row {
+display: flex;
+}
+
+#reader__scan_region {
+background: black;
+}
+
+.scanner {
+padding: 1rem;
+}
+
+#interactive {
+display: flex;
+justify-content: center;
+align-items: center;
+margin: auto;
+}
+
+#interactive video {
+width: 100%;
+}
+
+.btns {
+text-align: center;
+margin: 1rem 0;
+}
+
+.svg_output {
+display: flex;
+justify-content: center;
+margin: 1rem 0;
+}
+.validity_check,.new_student_reg {
+  display: none;
+  margin: 0;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  /* background: #fff; */
+  border-radius: 0.5rem;
+  font-weight: bolder;
+  /* box-shadow: 3px 3px 20px 5px rgba(0, 0, 0, 0.192); */
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+/* Login Page */
+
+.login_form{
+  max-width: 400px;
+  width: 100%;
+  margin: auto;
+}
+
+.validity_check.show {
+  display: block;
+}
+
+#missing_form_btn{
+  display: none;
+}
+#missing_form_btn.show{
+  display: inline-block;
+}
+.new_student_reg.show {
+display: block;
+}
+
+.validity_check p {
+margin: 0;
+}
+
+h1#title {
+string-set: title content(text);
+}
+
+@page {
+size: 230mm 300mm;
+bleed: 6mm;
+marks: crop;
+margin-left: 5mm;
+margin-right: 5mm;
+margin-top: 5mm;
+margin-bottom: 5mm;
+@top-center {
+  content: string(title);
+  text-transform: uppercase;
+}
+@bottom-left {
+  content: "Page " counter(page) " of " counter(pages);
+}
+}
+.pagedjs_margin-content::after{
+  font-size: 11px;
+  font-style: italic;
+}
+.meta_info {
+  position: relative;
+}
+
+#print_conf {
+  position: absolute;
+  top: 20px;
+  right: 0;
+}
+.table{
+  border-collapse: collapse;
+  page-break-inside:auto;
+  table-layout: fixed;
+}
+.table .table_row{
+  width: 100%;
+  page-break-inside:avoid; 
+  page-break-after:avoid; 
+}
+
+.tokens_container {
+-moz-column-break-before: page;
+      break-before: page;
+}
+
+
+.token {
+position: relative;
+width: 420px;
+margin: 2px 0;
+}
+
+.token_body {
+height: 65px;
+}
+
+.token_usage_print {
+display: flex;
+}
+.token_usage_print li {
+list-style: disc;
+font-weight: bolder;
+margin: 0 1rem;
+}
+
+.token::before {
+content: "";
+position: absolute;
+top: 0;
+left: 0;
+height: 100%;
+width: 100%;
+background: url("https://th.bing.com/th/id/R.9022450cb9bd5c25aa83792341c1d93e?rik=pyPsMUjo7%2fTeLg&riu=http%3a%2f%2fcse.iubat.edu%2fwp-content%2fuploads%2f2019%2f06%2fiubat_cse-logo.png&ehk=EDxgn3M75GwbAI3b1Fwn7FLCfXN4NLEy3HGYtpFFQO8%3d&risl=&pid=ImgRaw&r=0") no-repeat center;
+opacity: 0.1;
+}
+
+.token_body {
+position: relative;
+}
+
+.qr-code {
+position: absolute;
+bottom: 0;
+right: 0;
+}
+
+
+.hero{
+  margin-top: -2.5rem;
+}
